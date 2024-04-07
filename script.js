@@ -86,8 +86,7 @@ function RetornarSimOuNao(hospede){
             listaHospedes.push(hospede);
             ApresentarNaTela(`${nomeUsuario}, reserva efetuada para ${hospede.nome}`);
             Inicio();
-        }
-        RetornarSimOuNao(hospede);    
+        }   
     }
         RetornarSimOuNao(hospede);
     
