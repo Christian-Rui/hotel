@@ -1,6 +1,7 @@
 var nomeHotel = 'Letoh';
 var listaHospedes = [];
 var listaCadastroHospedes = [];
+var nomesHospedes = [];
 
 ApresentarNaTela(`Bem vindo ao ${nomeHotel}`);
 
@@ -29,7 +30,7 @@ function VerificarSenha() {
 }
 
 function Inicio() {
-    var escolhaOpcao = parseInt(prompt("Digite qual opção deseja: \n\n[ 1 ] - Reservar Quarto \n\n[ 2 ] - Cadastrar Hospedes \n\n[ 6 ] - Sair do hotel"))
+    var escolhaOpcao = parseInt(prompt("Digite qual opção deseja: \n\n[ 1 ] - Reservar Quarto \n\n[ 2 ] - Cadastrar Hospedes \n\n[ 3 ] - Cadastrar e Pesquisar\n\n[ 6 ] - Sair do hotel"))
     switch (escolhaOpcao) {
         case 1:
             ReservarQuarto();
@@ -37,8 +38,11 @@ function Inicio() {
         case 2:
             CadastrarHospedes();
             break;
+        case 3:
+            CadastroEPesquisa();
+            break;
         case 6:
-            Sair('Deseja sair do hotel: ')
+            confirm('Deseja sair do hotel: ') ? Inicio() : CadastroEPesquisa();
             break;
         default:
             Erro(escolhaOpcao);
@@ -119,9 +123,11 @@ function RetornarSenha(textoPrompt) {
 
 function RetornarNumeroPositivo(textoPrompt, max) {
     var valor = ReceberValorUsuario(textoPrompt);
-    if (valor === null) {
-        confirm('Você deseja cancelar operação e voltar para o menu inicial') ? Inicio() : RetornarNumeroPositivo(textoPrompt, max);
+
+    if(valor === null){
+        Cancelar("Você deseja cancelar operação e voltar para o menu inicial") ? Inicio() : RetornarNumeroPositivo(textoPrompt, max);
     }
+
     valor = (VerificarNumeroRecebido(valor) && VerificarMaiorQueZero(Number(valor))) ? Number(valor) : RetornarNumeroPositivo(textoPrompt, max);
     if (max && valor > max) {
         ApresentarNaTela(`O valor "${valor}" não está de acordo com o valor máximo ${max}! \n\nTente novamente.`);
@@ -161,11 +167,11 @@ function VerificarTextoRecebido(valor, textosPermitidos) {
             ApresentarNaTela(`Valor inválido! Apenas será aceito ${textos} para resposta. \n\nTente novamente`);
             return false;
         }
-        return true;      
+        return true;
     }
     ApresentarNaTela(`Valor inválido! Apenas caracteres e textos são aceitos. \n\nTente novamente`);
     return false;
-    
+
 }
 
 
@@ -191,7 +197,7 @@ function CadastrarHospedes() {
         if (!podeParar) {
             var idadeHospede = RetornarNumeroPositivo("Qual à idade do hospede: \n\nOBS: O valor deve ser maior que 0!");
 
-            
+
             var textoPagamento = '';
             if (idadeHospede < 6) {
                 textoPagamento = 'possui gratuidade';
@@ -213,25 +219,83 @@ function CadastrarHospedes() {
             listaCadastroHospedes.push(objetoLista);
         }
 
-    } while(!podeParar);
+    } while (!podeParar);
 
-    if(listaCadastroHospedes.length > 0){
+    if (listaCadastroHospedes.length > 0) {
         var total = 0
 
-    total = diariaPadrao * (listaCadastroHospedes.length - (gratuita + meia));
-    alert(meia)
-    total += (diariaPadrao * meia) / 2
+        total = diariaPadrao * (listaCadastroHospedes.length - (gratuita + meia));
+        alert(meia)
+        total += (diariaPadrao * meia) / 2
 
-    ApresentarNaTela(`${nomeUsuario}, o valor total das hospedagens é: R$${total.toFixed(2)}; ${gratuita} gratuidade(s); ${meia} meia(s)`);
+        ApresentarNaTela(`${nomeUsuario}, o valor total das hospedagens é: R$${total.toFixed(2)}; ${gratuita} gratuidade(s); ${meia} meia(s)`);
     }
 
     listaCadastroHospedes = [];
     Inicio();
-    
+
 }
 
 function CadastroEPesquisa() {
+    var escolhaOpcao = parseInt(prompt("Digite qual opção deseja: \n\n[ 1 ] - Cadastrar \n\n[ 2 ] - Pesquisar \n\n[ 3 ] - Listar\n\n[ 4 ] - Sair"))
+    switch (escolhaOpcao) {
+        case 1:
+            Cadastrar();
+            break;
+        case 2:
+            Pesquisar();
+            break;
+        case 3:
+            Listar();
+            break;
+        case 4:
+            Sair('Deseja voltar para o menu inicial: ')
+            break;
+        default:
+            Erro(escolhaOpcao);
+    }
+}
 
+
+
+function Cadastrar(){
+    var hospede = ReceberValorUsuario("Qual o nome do hospede: ");
+
+   if(hospede === null){
+    Cancelar("Você deseja cancelar operação e voltar para o menu anterior") ? CadastroEPesquisa() : Cadastrar();
+   }
+
+   if((nomesHospedes.length + 1) < 3) {
+    nomesHospedes.push(hospede.toLowerCase());
+   } else {
+    ApresentarNaTela("Máximo de cadastros atingido");
+   }
+   CadastroEPesquisa()
+}
+
+function Pesquisar(){
+    var hospede = ReceberValorUsuario("Qual o nome do hospede você deseja pesquisar: ");
+
+   if(hospede === null){
+    Cancelar("Você deseja cancelar operação e voltar para o menu anterior") ? CadastroEPesquisa() : Pesquisar();
+   }
+
+   if(nomesHospedes.includes(hospede.toLowerCase())){
+    ApresentarNaTela(`Hospede ${nomesHospedes[nomesHospedes.indexOf(hospede.toLowerCase())]} foi encontrado`);
+   } else {
+    ApresentarNaTela('Hospede não encontrado');
+   }
+
+   CadastroEPesquisa();
+}
+
+function Listar() {
+    ApresentarNaTela(`Os hospedes cadastrados no hotel são: \n\n${nomesHospedes.join(', ')}`);
+    CadastroEPesquisa();
+}
+
+function Cancelar(texto){
+    return confirm(texto);
 }
 
 function Erro(numero) {
