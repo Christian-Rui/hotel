@@ -5,27 +5,110 @@ var nomesHospedes = [];
 
 ApresentarNaTela(`Bem vindo ao ${nomeHotel}`);
 
-var nomeUsuario = RetornarNome();
+/* 
+//Variaveis de exemplo
 
-function RetornarNome() {
-    var valorNome = ReceberValorUsuario('Por favor, digite o seu nome:');
-    if (valorNome == null && !SairEDespedir(confirm('Você deseja sair sem informar seu nome?'))) {
-        return RetornarNome();
-    }
-    return valorNome;
+var test1 = RestrigirNumero(() => RetornarValorUsuario({
+    tipo: 'numero',
+    texto: 'Digite um número',
+    textoCancelar: 'Sair do banheiro',
+    funcaoCancela: Testar2
+}), {min: 1, max: 350});
+
+var test2 = RestrigirNumero(() => RetornarValorUsuario({
+    tipo: 'numero',
+    texto: 'Digite um número',
+    funcaoCancela: Testar2
+}), {min: 0, max: 30});
+
+var test3 = RetornarValorUsuario({
+    tipo: 'letra',
+    texto: 'Digite uma letra',
+    textoCancelar: 'Sair do quarto',
+    funcaoCancela: Testar1
+}); 
+
+function Testar1() {
+    alert('opa');
 }
+
+function Testar2() {
+    alert('ae muleke foi')
+}
+
+*/
+
+
+
+
+function RetornarValorUsuario(elementos) {
+     while (true) {
+        let valorUsuario = window.prompt(elementos.texto);
+
+        if (valorUsuario == null) {
+            if (confirm(`Você deseja cancelar a operação${elementos.textoCancelar ? elementos.textoCancelar : ' '}?`)) {
+                return elementos.funcaoCancela();
+            }
+        } else if (valorUsuario.trim() === '') {
+            alert("Nada foi digitado! \n\nTente novamente");
+        } else if ((isNaN(valorUsuario) ? 'letra' : 'numero') !== elementos.tipo) {
+            alert(`Valor inválido!\n\nDigite apenas valores que sejam ${elementos.tipo}s`);
+        } else {
+            return elementos.tipo === 'numero' ? Number(valorUsuario) : valorUsuario;
+        }
+    }
+}
+
+function RestrigirNumero(funcao, limitadores) {
+    var RepetirFuncao = () => RestrigirNumero(funcao, limitadores);
+    var numero = funcao();
+
+    function alertaLimite(tipo, limite) {
+        alert(`O valor "${numero}" não está de acordo com o valor ${tipo} aceitável: "${limite}"! \n\nTente novamente.`);
+    }
+
+    if(limitadores.min != undefined && numero < limitadores.min){
+        alertaLimite("mínimo", limitadores.min);      
+        return RepetirFuncao();
+    }
+
+    if (limitadores.max != undefined && numero > limitadores.max) {
+        alertaLimite("máximo", limitadores.max);
+        return RepetirFuncao();
+    }
+    
+    return numero;
+}
+
+
+var nomeUsuario = RetornarValorUsuario({
+    tipo: 'letra',
+    texto: 'Por favor, digite o seu nome:',
+    textoCancelar: ' sem informar seu nome',
+    funcaoCancela: SairEDespedirTeste
+});
 
 function VerificarSenha() {
     var senha = 2678;
-    var senhadigitada = RetornarSenha('Digite sua senha: \n\nA senha possui 4 digitos');
+    var digitosMax = 4;
+    var senhadigitada = RetornarValorUsuario({
+        tipo: "numero",
+        texto: `Digite sua senha: \n\nA senha possui ${digitosMax} dígitos`,
+        funcaoCancela: SairEDespedirTeste
+    })
 
-    if (senhadigitada === senha) {
+    var quantidadeSenha = senhadigitada.toString().length;
+
+    if(quantidadeSenha > digitosMax || quantidadeSenha < digitosMax){
+        alert(`Senha inválida!\n\nA quantidade de número digitados foi ${quantidadeSenha}, e a senha possuí ${digitosMax} dígitos`);
+        VerificarSenha();
+    } else if (senhadigitada !== senha) {
+        alert('Senha inválida!');
+        VerificarSenha();     
+    } else {
         ApresentarNaTela("Senha válida!");
         ApresentarNaTela(`Bem vindo ao hotel ${nomeHotel}, ${nomeUsuario}.\nÉ um imenso prazer ter você por aqui!`);
         Inicio();
-    } else {
-        ApresentarNaTela('Senha inválida!');
-        VerificarSenha();
     }
 }
 
@@ -132,7 +215,7 @@ function VerificarQuartoDisponivel(texto, valorMaximo, quartos) {
     //     listaQuartosReservados.push(quarto);
     // }
 }
-
+/* 
 function RetornarSenha(textoPrompt) {
     var valor = ReceberValorUsuario(textoPrompt);
     if (valor === null) {
@@ -183,6 +266,14 @@ function VerificarNumeroRecebido(valor) {
     return true;
 }
 
+function VerificarMaiorQueZero(valorNumero) {
+    if (valorNumero <= 0) {
+        ApresentarNaTela(`O valor "${valorNumero}" não está de acordo com a condição do valor ser maior de 0! \n\nTente novamente`);
+        return false;
+    }
+    return true;
+}
+ */
 function VerificarTextoRecebido(valor, textosPermitidos) {
     if (isNaN(valor)) {
         if (textosPermitidos && !textosPermitidos.includes(valor.toLowerCase())) {
@@ -195,16 +286,6 @@ function VerificarTextoRecebido(valor, textosPermitidos) {
     ApresentarNaTela(`Valor inválido! Apenas caracteres e textos são aceitos. \n\nTente novamente`);
     return false;
 
-}
-
-
-
-function VerificarMaiorQueZero(valorNumero) {
-    if (valorNumero <= 0) {
-        ApresentarNaTela(`O valor "${valorNumero}" não está de acordo com a condição do valor ser maior de 0! \n\nTente novamente`);
-        return false;
-    }
-    return true;
 }
 
 function CadastrarHospedes() {
@@ -529,4 +610,11 @@ function SairEDespedir(confirmar) {
 
 }
 
-VerificarSenha();
+function SairEDespedirTeste() {
+    alert(`Muito obrigado e até logo, ${nomeUsuario != null ? nomeUsuario : 'Desconhecido'}`);
+    window.close();
+}
+
+if(nomeUsuario != null){
+    VerificarSenha();
+}
