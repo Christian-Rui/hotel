@@ -3,10 +3,43 @@ var listaHospedes = [];
 var listaCadastroHospedes = [];
 var nomesHospedes = [];
 
-var objetoCancelar = {
-    texto: 'e voltar para o menu principal',
-    funcao: Inicio
+function CalcularMaxHoras(diaSemana) {
+    return diaSemana === 'sabado' || diaSemana === 'domingo' ? 15 : 23;
 }
+
+var arraySemana = ['segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
+
+var arrayObjetosDias = arraySemana.map(dia => ({
+    nome: dia,
+    max: CalcularMaxHoras(dia),
+    quantidadeMax: (CalcularMaxHoras(dia) - 7) + 1,
+    horarioMarcado: []
+}));
+
+var arrayAuditorio = [
+    {
+        nome: 'laranja',
+        semanas: [...arrayObjetosDias],
+        agendados: []
+    },
+    {
+        nome: 'colorado',
+        semanas: [...arrayObjetosDias],
+        agendados: []
+    }
+];
+
+var objetoCancelarInicio = {
+    textoCancelar: 'e voltar para o menu principal',
+    funcaoCancela: Inicio
+};
+
+var objetoCancelarPesquisa = {
+    textoCancelar: 'e voltar para o menu anterior',
+    funcaoCancela: CadastroEPesquisa
+}
+
+
 
 alert(`Bem vindo ao ${nomeHotel}`);
 
@@ -94,6 +127,14 @@ function RestringirTexto(funcaoValorUsuario, arrayTextosPermitidos) {
     }
 }
 
+function MontarTextoOpcoes(listaPalavras) {
+    var texto = 'Digite qual opção deseja:';
+    for (var i = 0; i < listaPalavras.length; i++) {
+        texto += `\n[ ${i + 1} ] ${listaPalavras[i]}`;
+    }
+    return texto;
+}
+
 var nomeUsuario = RetornarValorUsuario(
     'letra',
     'Por favor, digite o seu nome:',
@@ -127,12 +168,7 @@ function VerificarSenha() {
 }
 
 function Inicio() {
-    var listaEscolha = ['Reservar Quarto', 'Cadastrar Hospedes', 'Cadastrar e Pesquisar', 'Eventos', 'Passeios', 'Manuntenção', 'Sair do Hotel'];
-    var textoEscolha = 'Digite qual opção deseja:';
-
-    for (var i = 0; i < listaEscolha.length; i++) {
-        textoEscolha += `\n[ ${i + 1} ] ${listaEscolha[i]}`;
-    }
+    var textoEscolha = MontarTextoOpcoes(['Reservar Quarto', 'Cadastrar Hospedes', 'Cadastrar e Pesquisar', 'Eventos', 'Passeios', 'Manuntenção', 'Sair do Hotel']);
 
     var escolhaOpcao = RetornarValorUsuario(
         'numero',
@@ -164,7 +200,7 @@ function Inicio() {
             Sair('Deseja sair do hotel: ')
             break;
         default:
-            Erro(escolhaOpcao, listaEscolha.length);
+            Erro(escolhaOpcao, 7);
     }
 }
 
@@ -173,22 +209,22 @@ function ReservarQuarto() {
     var valorDiaria = RestrigirNumero(() => RetornarValorUsuario(
         'numero',
         'Digite o valor padrão da diária: \n\nOBS: O valor minímo é 1!',
-        objetoCancelar.texto,
-        objetoCancelar.funcao
+        objetoCancelarInicio.textoCancelar,
+        objetoCancelarInicio.funcaoCancela
     ), { min: 1 });
 
     var quantidadeDias = RestrigirNumero(() => RetornarValorUsuario(
         'numero',
         'Digite a quantidade de dias que deseja se hospedar: \n\nOBS: O máximo é até 30 dias! \nNo mínimo é de 1 dia!',
-        objetoCancelar.texto,
-        objetoCancelar.funcao
+        objetoCancelarInicio.textoCancelar,
+        objetoCancelarInicio.funcaoCancela
     ), { min: 1, max: 30 });
 
     var nomeDoHospede = RetornarValorUsuario(
         'letra',
         'Digite o nome do hospede:',
-        objetoCancelar.texto,
-        objetoCancelar.funcao
+        objetoCancelarInicio.textoCancelar,
+        objetoCancelarInicio.funcaoCancela
     );
 
     var quartosTexto = '';
@@ -218,8 +254,8 @@ function ReservarQuarto() {
     var reposta = RestringirTexto(() => RetornarValorUsuario(
         'letra',
         `${nomeUsuario}, você confirma a hospedagem para ${objetoLista.nome} por ${objetoLista.dias} dias para o quarto ${objetoLista.quarto} por R$${objetoLista.diaria}? S/N`,
-        objetoCancelar.texto,
-        objetoCancelar.funcao
+        objetoCancelarInicio.textoCancelar,
+        objetoCancelarInicio.funcaoCancela
     ), ['s', 'n']);
 
     if (reposta === 's') {
@@ -236,8 +272,8 @@ function VerificarQuartoDisponivel(quartosTexto, valorMaximo, quartos) {
         var numeroQuarto = RestrigirNumero(() => RetornarValorUsuario(
             'numero',
             `Digite o número do quarto que deseja ( de 1 a 20: \n\nQuartos ainda disponíveis: \n${quartosTexto}`,
-            objetoCancelar.texto,
-            objetoCancelar.funcao
+            objetoCancelarInicio.textoCancelar,
+            objetoCancelarInicio.funcaoCancela
         ), { min: 1, max: valorMaximo });
 
         if (!quartos.includes(numeroQuarto)) {
@@ -252,8 +288,8 @@ function CadastrarHospedes() {
     var diariaPadrao = RestrigirNumero(() => RetornarValorUsuario(
         'numero',
         `Digite o valor padrão da diária: \n\nOBS: O valor deve ser no minimo 1!`,
-        objetoCancelar.texto,
-        objetoCancelar.funcao
+        objetoCancelarInicio.textoCancelar,
+        objetoCancelarInicio.funcaoCancela
     ), { min: 1 });
 
     var meia = 0;
@@ -263,8 +299,8 @@ function CadastrarHospedes() {
         var nomeDoHospede = RetornarValorUsuario(
             'letra',
             "Qual o nome do hospede: \n\nOBS: caso digite PARE, o programa irá parar.",
-            objetoCancelar.texto,
-            objetoCancelar.funcao
+            objetoCancelarInicio.textoCancelar,
+            objetoCancelarInicio.funcaoCancela
         )
 
         if (nomeDoHospede.toLowerCase() === 'pare') {
@@ -274,8 +310,8 @@ function CadastrarHospedes() {
         var idadeHospede = RestrigirNumero(() => RetornarValorUsuario(
             'numero',
             `Qual à idade do hospede: \n\nOBS: O valor deve ser no minimo 1!!`,
-            objetoCancelar.texto,
-            objetoCancelar.funcao
+            objetoCancelarInicio.textoCancelar,
+            objetoCancelarInicio.funcaoCancela
         ), { min: 1 });
 
         var textoPagamento = '';
@@ -300,7 +336,6 @@ function CadastrarHospedes() {
         listaCadastroHospedes.push(objetoLista);
     }
 
-
     if (listaCadastroHospedes.length > 0) {
         var total = 0
 
@@ -312,181 +347,275 @@ function CadastrarHospedes() {
 
     listaCadastroHospedes = [];
     Inicio();
-
 }
 
-// function CadastroEPesquisa() {
-//     var escolhaOpcao = parseInt(prompt("Digite qual opção deseja: \n\n[ 1 ] - Cadastrar \n\n[ 2 ] - Pesquisar \n\n[ 3 ] - Listar\n\n[ 4 ] - Sair"))
-//     switch (escolhaOpcao) {
-//         case 1:
-//             Cadastrar();
-//             break;
-//         case 2:
-//             Pesquisar();
-//             break;
-//         case 3:
-//             Listar();
-//             break;
-//         case 4:
-//             Sair('Deseja voltar para o menu inicial: ')
-//             break;
-//         default:
-//             Erro(escolhaOpcao);
-//     }
-// }
+function CadastroEPesquisa() {
+    var textoEscolha = MontarTextoOpcoes(['Cadastrar', 'Pesquisar', 'Listar', 'Sair']);
 
+    var escolhaOpcao = RetornarValorUsuario(
+        'numero',
+        textoEscolha,
+        listaObjetoCancelar[0].textoCancelar,
+        listaObjetoCancelar[0].funcaoCancela
+    )
 
+    switch (escolhaOpcao) {
+        case 1:
+            Cadastrar();
+            break;
+        case 2:
+            Pesquisar();
+            break;
+        case 3:
+            Listar();
+            break;
+        case 4:
+            confirm('Deseja voltar para o menu inicial?') ? Inicio() : CadastroEPesquisa();
+            break;
+        default:
+            Erro(escolhaOpcao, 4);
+    }
+}
 
-// function Cadastrar() {
-//     var hospede = ReceberValorUsuario("Qual o nome do hospede: ");
+function Cadastrar() {
+    if ((nomesHospedes.length + 1) < 15) {
+        nomesHospedes.push(RetornarValorUsuario(
+            'letra',
+            'Qual o nome do hospede:',
+            objetoCancelarPesquisa.textoCancelar,
+            objetoCancelarPesquisa.funcaoCancela
+        ).toLowerCase());
+    } else {
+        alert("Máximo de cadastros atingido");
+    }
 
-//     if (hospede === null) {
-//         Cancelar("Você deseja cancelar operação e voltar para o menu anterior") ? CadastroEPesquisa() : Cadastrar();
-//     }
+    CadastroEPesquisa()
+}
 
-//     if ((nomesHospedes.length + 1) < 3) {
-//         nomesHospedes.push(hospede.toLowerCase());
-//     } else {
-//         ApresentarNaTela("Máximo de cadastros atingido");
-//     }
-//     CadastroEPesquisa()
-// }
+function Pesquisar() {
+    var hospede = RetornarValorUsuario(
+        'letra',
+        'Qual o nome do hospede você deseja pesquisar:',
+        objetoCancelarPesquisa.textoCancelar,
+        objetoCancelarPesquisa.funcaoCancela
+    );
 
-// function Pesquisar() {
-//     var hospede = ReceberValorUsuario("Qual o nome do hospede você deseja pesquisar: ");
+    if (nomesHospedes.includes(hospede.toLowerCase())) {
+        alert(`Hospede ${nomesHospedes[nomesHospedes.indexOf(hospede.toLowerCase())]} foi encontrado`);
+    } else {
+        alert('Hospede não encontrado');
+    }
 
-//     if (hospede === null) {
-//         Cancelar("Você deseja cancelar operação e voltar para o menu anterior") ? CadastroEPesquisa() : Pesquisar();
-//     }
+    CadastroEPesquisa();
+}
 
-//     if (nomesHospedes.includes(hospede.toLowerCase())) {
-//         ApresentarNaTela(`Hospede ${nomesHospedes[nomesHospedes.indexOf(hospede.toLowerCase())]} foi encontrado`);
-//     } else {
-//         ApresentarNaTela('Hospede não encontrado');
-//     }
+function Listar() {
+    alert(`Os hospedes cadastrados no hotel são: \n\n${nomesHospedes.join(', ')}`);
+    CadastroEPesquisa();
+}
 
-//     CadastroEPesquisa();
-// }
+function Eventos() {
 
-// function Listar() {
-//     ApresentarNaTela(`Os hospedes cadastrados no hotel são: \n\n${nomesHospedes.join(', ')}`);
-//     CadastroEPesquisa();
-// }
+    var ocupados = arrayAuditorio.filter(objeto =>
+        objeto.semanas.every(dias => dias.horarioMarcado.length === dias.quantidadeMax)
+    );
 
+    if (ocupados.length == 2) {
+        alert('Não há auditórios disponíveis para agendar eventos');
+        return Inicio();
+    } else {
+        var laranja = 150;
+        var laranjaAdicional = 70;
+        var colorado = 350;
 
+        var temOcupado = ocupados.length > 0;
 
+        var textoLaranja = temOcupado && ocupados[0].nome === 'laranja' ? 'Auditório Laranja indisponível!' : `- Laranja com capacidade de ${laranja} lugares, com mais ${laranjaAdicional} lugares adicionais.`;
+        var textoColorado = temOcupado && ocupados[0].nome === 'colorado' ? 'Auditório Colorado indisponível' : `- Colorado com capacidade para ${colorado} lugares.`;
 
-// function Eventos() {
-//     var laranja = 150;
-//     var laranjaAdicional = 70;
+        var valorMax = temOcupado && ocupados[0].nome === 'colorado' ? laranja + laranjaAdicional : colorado;
 
-//     var colorado = 350;
+        var convidados = RestrigirNumero(() => RetornarValorUsuario(
+            'numero',
+            `Qual é o número de convidados para esse evento:\n\nHá dois auditórios:\n${textoLaranja}\n${textoColorado}\n\nOBS: Numero mínimo de convidados é 1, e o máximo é ${valorMax}\nAperte em cancelar para voltar do Inicio!`,
+            objetoCancelarInicio.textoCancelar,
+            objetoCancelarInicio.funcaoCancela
+        ), { min: 1, max: valorMax });
 
-//     var convidados = RetornarNumeroPositivo('Qual é o número de convidados para esse evento: \n\nOBS: Numero mínimo de convidade é 1, e o máximo é de 350!', colorado);
+        var auditorio;
+        var adicionaisNecessarios = 0;
 
-//     if (convidados === null) {
-//         Cancelar("Você deseja cancelar operação e voltar para o menu inicial") ? Inicio() : Eventos();
-//     }
+        var textoAuditorio = [];
+        if (convidados <= (laranja + laranjaAdicional)) {
+            auditorio = 'laranja';
+            if (convidados > laranja) {
+                adicionaisNecessarios = convidados - laranja;
+                textoAuditorio.push(`(inclua mais ${adicionaisNecessarios} cadeiras)`);
+            }
+        } else {
+            auditorio = 'colorado'
+        }
 
-//     var adicionaisNecessarios = 0;
-//     var textoAuditorio = '';
-//     if (convidados < (laranja + laranjaAdicional)) {
-//         textoAuditorio = 'Use o auditório Laranja'
-//         if (convidados > laranja) {
-//             adicionaisNecessarios = convidados - laranja;
-//             textoAuditorio += ` inclua mais ${adicionaisNecessarios} cadeiras)`
-//         }
-//     } else {
-//         textoAuditorio = 'Use o auditório Colorado';
-//     }
-//     ApresentarNaTela(textoAuditorio)
-//     ApresentarNaTela('Agora vamos ver a agenda do evento');
+        textoAuditorio.unshift(`Use o auditório ${auditorio}`);
+        alert(textoAuditorio.join(' '));
 
-//     var reservaMinima = 7;
-//     var reservaMaximaSemana = 23;
-//     var reservaMaximaFimDeSemana = 15;
+        alert('Agora vamos ver a agenda do evento');
 
-//     var diaSemana = ReceberValorUsuario('Qual o dia da semana que deseja reservar: ');
+        var objetoAuditorio = arrayAuditorio.filter(objeto => objeto.nome === auditorio);
+        var semanasDesocupadas = objetoAuditorio.map(objeto => {
+            const diasDesocupados = objeto.semanas.filter(dias => dias.horarioMarcado.length != dias.quantidadeMax)
+            return diasDesocupados.map(dia => dia.nome);
+        }).flat();
 
-//     var semana = ['segunda', 'terça', 'quarta', 'quinta', 'sexto'];
-//     var fimSemana = ['sabado', 'domingo'];
-//     if (diaSemana === null) {
-//         Cancelar("Você deseja cancelar operação e voltar para o menu inicial") ? Inicio() : Eventos();
-//     }
+        var diaDaSemana = DecidirDia(semanasDesocupadas);
 
-//     var horario = parseInt(RetornarNumeroPositivo('Qual o horário deseja reservar: '));
+        var objetoSemana = objetoAuditorio.flatMap(objeto => objeto.semanas).find(semana => semana.nome === diaDaSemana);
 
-//     var textoReserva = '';
-//     if (semana.includes(diaSemana) && horario >= reservaMinima && horario <= reservaMaximaSemana || fimSemana.includes(diaSemana) && horario >= reservaMinima && horario <= reservaMaximaFimDeSemana) {
+        var horario = DecidirHorario(objetoSemana.max, objetoSemana.horarioMarcado);
 
-//         textoReserva = 'Auditório disponível';
-//         ApresentarNaTela(textoReserva);
-//     } else {
-//         textoReserva = 'Auditório indisponível';
-//         ApresentarNaTela(textoReserva);
-//         Eventos();
-//     }
+        if (!objetoSemana.horarioMarcado.includes(horario)) {
+            alert('Auditório disponível');
+        } else {
+            alert('Auditório indisponível');
+            return Inicio();
+        }
 
-//     var nomeEmpresa = ReceberValorUsuario('Qual o nome da empresa: ');
+        var nomeEmpresa = RetornarValorUsuario(
+            'letra',
+            'Qual o nome da empresa:',
+            objetoCancelarInicio.textoCancelar,
+            objetoCancelarInicio.funcaoCancela
+        );
+    
+        alert(`Auditório reservado para ${nomeEmpresa}: ${diaDaSemana} às ${horario}hs`);
 
-//     if (nomeEmpresa === null) {
-//         Cancelar("Você deseja cancelar operação e voltar para o menu inicial") ? Inicio() : Eventos();
-//     }
+        var duracaoEvento = DefinirDuracao(horario, objetoSemana.max, objetoSemana.horarioMarcado);
+        
+        DefinirGarcom(convidados, duracaoEvento.length);
+        DefinirAlimento(convidados);
 
-//     ApresentarNaTela(`Auditório reservado para ${nomeEmpresa}: ${diaSemana} às ${horario}hs`);
+        var podeReservar = RestringirTexto(() => RetornarValorUsuario(
+            'letra',
+            'Gostaria de efetuar a reserva? S/N',
+            objetoCancelarInicio.textoCancelar,
+            objetoCancelarInicio.funcaoCancela
+        ), ['s', 'n']);
+    
+        if (podeReservar === 's') {
+            alert(`${nomeUsuario}, reserva efetuada com sucesso.`);
+            objetoAuditorio.agendados.push({
+                nome: nomeEmpresa,
+                diaDaSemana: diaDaSemana,
+                horario: horario,
+                duracao: duracaoEvento,
+            });
+        } else {
+            alert('Reserva não efetuada.');    
+        }
+    }
+    return Inicio();
+}
 
-//     var garcomPagamento = 10.50;
+function DecidirDia(listaSemanas) {
+    var diaSemana = RestringirTexto(() => RetornarValorUsuario(
+        'letra',
+        `Qual o dia da semana que deseja reservar: \n\nDias disponíveis: ${listaSemanas.join(', ')}.\n\nAperte em cancelar para voltar do Inicio!`,
+        objetoCancelarInicio.textoCancelar,
+        objetoCancelarInicio.funcaoCancela
+    ), listaSemanas);
+    return diaSemana;
+}
 
-//     var duracao = RetornarNumeroPositivo("Qual a duração do evento em horas? ");
+function DecidirHorario(max, objetoArray) {
+    var reservaMinima = 7;
 
-//     var garcomPorConvidado = Math.ceil(convidados / 12);
+    var horariosDisponiveis = [];
 
-//     var garcomPorHora = Math.ceil(duracao / 2);
+    for (var i = reservaMinima; i <= max; i++) {
+        if (!objetoArray.includes(objetoArray)) {
+            horariosDisponiveis.push(i);
+        }
+    }
 
-//     var custo = parseFloat((garcomPagamento * duracao) * (garcomPorConvidado + garcomPorHora));
+    var horario = RestrigirNumero(() => RetornarValorUsuario(
+        'numero',
+        `Qual o horário deseja reservar:\nHorários disponíveis: ${horariosDisponiveis.join('hs, ')}hs.\n\nNão há horários antes das ${reservaMinima} e depois das ${max}`,
+        objetoCancelarInicio.textoCancelar,
+        objetoCancelarInicio.funcaoCancela
+    ), { min: reservaMinima, max: max });
+    return horario;
+}
 
-//     ApresentarNaTela(`São necessários ${garcomPorConvidado + garcomPorHora} garçons`);
-//     ApresentarNaTela(`Custo: R$${custo.toFixed(2)}`);
-//     ApresentarNaTela('Agora vamos calcular o custo do buffet do hotel para o Eventos.')
+function DefinirDuracao(horarioAgendado, max, horariosMarcados) {
 
+    function CalcularDiferencaEmHoras(horario1, horario2) {
+        return Math.abs(horario1 - horario2);
+    }
 
-//     var cafePorPessoa = 0.2;
-//     var aguaPorPessoa = 0.5;
-//     var salgadosPorPessoa = 7;
+    let horaMaisProxima = null;
+    let menorDiferenca = Infinity;
 
-//     var precoCafe = 0.80;
-//     var precoAgua = 0.40;
-//     var precoSalgado = 34;
+    if (horariosMarcados.length > 0) {
+        horariosMarcados.forEach(hora => {
+            const diferenca = CalcularDiferencaEmHoras(hora, horarioAgendado);
+            if (diferenca < menorDiferenca) {
+                menorDiferenca = diferenca;
+                horaMaisProxima = hora;
+            }
+        });
+    }
 
-//     var quantidadeBuffet = {};
+    var duracaoMax = horaMaisProxima != null ? (horaMaisProxima - horarioAgendado) : (max - horarioAgendado);
 
-//     quantidadeBuffet.cafe = cafePorPessoa * convidados;
-//     quantidadeBuffet.agua = aguaPorPessoa * convidados;
-//     quantidadeBuffet.salgados = salgadosPorPessoa * convidados;
+    var duracao = RestrigirNumero(() => RetornarValorUsuario(
+        'numero',
+        `Qual a duração do evento em horas?\n\nA duração máxima de horas possível de acordo com o horario que você escolheu é de até ${duracaoMax}hs\n\nAperte cancelar caso deseje voltar do inicio`,
+        objetoCancelarInicio.textoCancelar,
+        objetoCancelarInicio.funcaoCancela
+    ), { min: 1, max: duracaoMax > 1 ? duracaoMax : undefined });
 
-//     var valorBuffet = {};
+    const numeros = Array.from({ length: duracao }, (_, i) => i + horarioAgendado);
+    return numeros;
+}
 
-//     valorBuffet.cafe = Math.ceil(quantidadeBuffet.cafe) * precoCafe;
-//     valorBuffet.agua = Math.ceil(quantidadeBuffet.agua) * precoAgua;
-//     valorBuffet.salgados = Math.ceil(quantidadeBuffet.salgados / 100) * precoSalgado;
+function DefinirGarcom(convidados, duracao){
+    var garcomPagamento = 10.50;
+    var garcomPorConvidado = Math.ceil(convidados / 12);
 
-//     ApresentarNaTela(`O evento precisará de ${quantidadeBuffet.cafe} litros de café, ${quantidadeBuffet.agua} litros de água, ${quantidadeBuffet.salgados} salgados`);
+    var garcomPorHora = Math.ceil(duracao / 2);
 
-//     var aceitoCustos = confirm(`O café irá custar R$${valorBuffet.cafe}, a água R$${valorBuffet.agua}, e os salgados R$${valorBuffet.salgados}.\nNo total será R$${valorBuffet.cafe + valorBuffet.agua + valorBuffet.salgados}`);
+    var custo = parseFloat((garcomPagamento * duracao) * (garcomPorConvidado + garcomPorHora));
 
-//     if (aceitoCustos) {
-//         var podeReservar = VerificarTextoRecebido(ReceberValorUsuario('Gostaria de efetuar a reserva? S/N'), ['s', 'n']);
-//         if (podeReservar) {
-//             ApresentarNaTela(`${nomeUsuario}, reserva efetuada com sucesso.`);
-//             Inicio();
-//         } else {
-//             ApresentarNaTela(('Reserva não efetuada.'));
-//             Eventos();
-//         }
-//     } else {
-//         Eventos();
-//     }
-// }
+    alert(`São necessários ${garcomPorConvidado + garcomPorHora} garçons`);
+    alert(`Custo: R$${custo.toFixed(2)}`);
+    alert('Agora vamos calcular o custo do buffet do hotel para o Eventos.')
+}
+
+function DefinirAlimento(convidados){
+    var cafePorPessoa = 0.2;
+    var aguaPorPessoa = 0.5;
+    var salgadosPorPessoa = 7;
+
+    var precoCafe = 0.80;
+    var precoAgua = 0.40;
+    var precoSalgado = 34;
+
+    var quantidadeBuffet = {};
+
+    quantidadeBuffet.cafe = cafePorPessoa * convidados;
+    quantidadeBuffet.agua = aguaPorPessoa * convidados;
+    quantidadeBuffet.salgados = salgadosPorPessoa * convidados;
+
+    var valorBuffet = {};
+
+    valorBuffet.cafe = Math.ceil(quantidadeBuffet.cafe) * precoCafe;
+    valorBuffet.agua = Math.ceil(quantidadeBuffet.agua) * precoAgua;
+    valorBuffet.salgados = Math.ceil(quantidadeBuffet.salgados / 100) * precoSalgado;
+
+    alert(`O evento precisará de ${quantidadeBuffet.cafe} litros de café, ${quantidadeBuffet.agua} litros de água, ${quantidadeBuffet.salgados} salgados`);
+
+    alert(`O café irá custar R$${valorBuffet.cafe}, a água R$${valorBuffet.agua}, e os salgados R$${valorBuffet.salgados}.\nNo total será R$${valorBuffet.cafe + valorBuffet.agua + valorBuffet.salgados}`);
+}
 
 // function Passeios() {
 //     var wayne = {};
