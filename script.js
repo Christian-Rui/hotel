@@ -1,39 +1,26 @@
 var nomeHotel = 'Letoh';
 var listaHospedes = [];
-var listaCadastroHospedes = [];
 var nomesHospedes = [];
 
 function DefinirSemanas() {
+
+    var arraySemana = ['segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
 
     function CalcularMaxHoras(diaSemana) {
         return diaSemana === 'sabado' || diaSemana === 'domingo' ? 15 : 23;
     }
 
-    var arraySemana = ['segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
-    var arrayObjetosDias = [];
-
-    for (var i = 0; i < arraySemana.length; i++) {
-        arrayObjetosDias.push({
-            nome: arraySemana[i],
-            max: CalcularMaxHoras(arraySemana[i]),
-            quantidadeMax: (CalcularMaxHoras(arraySemana[i]) - 7) + 1,
-            horarioMarcado: []
-        });
-    }
-    return arrayObjetosDias;
+    return arraySemana.map(dia => ({
+        nome: dia,
+        max: CalcularMaxHoras(dia),
+        quantidadeMax: (CalcularMaxHoras(dia) - 7) + 1,
+        horarioMarcado: []
+    }));
 }
 
 var arrayAuditorio = [
-    {
-        nome: 'laranja',
-        semanas: [...DefinirSemanas()],
-        agendados: []
-    },
-    {
-        nome: 'colorado',
-        semanas: [...DefinirSemanas()],
-        agendados: []
-    }
+    { nome: 'laranja', semanas: [...DefinirSemanas()], agendados: []},
+    { nome: 'colorado', semanas: [...DefinirSemanas()], agendados: []}
 ];
 
 var objetoCancelarInicio = {
@@ -114,6 +101,11 @@ function RestringirTexto(funcaoValorUsuario, arrayTextosPermitidos) {
     }
 }
 
+function SairEDespedir() {
+    alert(`Muito obrigado e até logo, ${nomeUsuario? nomeUsuario : 'Desconhecido'}`);
+    // window.close();
+}
+
 function MontarTextoOpcoes(listaPalavras) {
     var texto = 'Digite qual opção deseja:';
     for (var i = 0; i < listaPalavras.length; i++) {
@@ -128,75 +120,6 @@ var nomeUsuario = executarComCancelamento(() => RetornarValorUsuario(
     'sem informar seu nome',
     SairEDespedir
 ));
-
-function VerificarSenha() {
-    executarComCancelamento(() => {
-        var senha = 2678;
-        var digitosMax = 4;
-        var senhadigitada = RetornarValorUsuario(
-            "numero",
-            `Digite sua senha: \n\nA senha possui ${digitosMax} dígitos`,
-            "e sair do programa",
-            SairEDespedir
-        );
-
-        var quantidadeSenha = senhadigitada.toString().length;
-
-        if (quantidadeSenha > digitosMax || quantidadeSenha < digitosMax) {
-            alert(`Senha inválida!\n\nA quantidade de número digitados foi ${quantidadeSenha}, e a senha possuí ${digitosMax} dígitos`);
-            VerificarSenha();
-        } else if (senhadigitada !== senha) {
-            alert('Senha inválida!');
-            VerificarSenha();
-        } else {
-            alert("Senha válida!");
-            alert(`Bem vindo ao hotel ${nomeHotel}, ${nomeUsuario}.\nÉ um imenso prazer ter você por aqui!`);
-            Inicio();
-        }
-    });
-}
-
-function Inicio() {
-    executarComCancelamento(() => {
-        var textoEscolha = MontarTextoOpcoes(['Reservar Quarto', 'Cadastrar Hospedes', 'Cadastrar e Pesquisar', 'Eventos', 'Passeios', 'Manuntenção', 'Sair do Hotel']);
-
-        var escolhaOpcao = parseInt(RetornarValorUsuario(
-            'numero',
-            textoEscolha,
-            'e sair do programa',
-            SairEDespedir
-        ));
-
-        switch (escolhaOpcao) {
-            case 1:
-                ReservarQuarto();
-                break;
-            case 2:
-                CadastrarHospedes();
-                break;
-            case 3:
-                CadastroEPesquisa();
-                break;
-            case 4:
-                Eventos();
-                break;
-            case 5:
-                Passeios();
-                break;
-            case 6:
-                Manuntencao();
-                break;
-            case 7:
-                confirm('Você deseja sair do programa?') ? SairEDespedir() : Inicio();
-                break;
-            case null:
-                break;
-            default:
-                Erro(escolhaOpcao, 7);
-        }
-    });
-}
-objetoCancelarInicio.funcaoCancela = Inicio
 
 function ReservarQuarto() {
     executarComCancelamento(() => {
@@ -294,6 +217,7 @@ function CadastrarHospedes() {
         var meia = 0;
         var gratuita = 0;
 
+        var listaCadastroHospedes = [];
         while (true) {
             var nomeDoHospede = RetornarValorUsuario(
                 'letra',
@@ -343,8 +267,6 @@ function CadastrarHospedes() {
 
             alert(`${nomeUsuario}, o valor total das hospedagens é: R$${total.toFixed(2)}; ${gratuita} gratuidade(s); ${meia} meia(s)`);
         }
-
-        listaCadastroHospedes = [];
         Inicio();
     });
 }
@@ -444,7 +366,7 @@ function Eventos() {
 
             var convidados = RestrigirNumero(() => RetornarValorUsuario(
                 'numero',
-                `Qual é o número de convidados para esse evento:\n\nHá dois auditórios:\n${textoLaranja}\n${textoColorado}\n\nOBS: Numero mínimo de convidados é 1, e o máximo é ${valorMax}\nAperte em cancelar para voltar do Inicio!`,
+                `Qual é o número de convidados para esse evento:\n\nHá dois auditórios:\n${textoLaranja}\n${textoColorado}\n\nOBS: Numero mínimo de convidados é 1, e o máximo é ${valorMax}\nAperte "Cancelar" caso deseje voltar do Inicio!`,
                 objetoCancelarInicio.textoCancelar,
                 objetoCancelarInicio.funcaoCancela
             ), { min: 1, max: valorMax });
@@ -472,7 +394,7 @@ function Eventos() {
             var semanasDesocupadas = objetoAuditorio.semanas.flatMap(semana => semana.horarioMarcado.length < semana.quantidadeMax ? semana.nome : []).filter(Boolean);
 
             var diaDaSemana = DecidirDia(semanasDesocupadas);
-            if (VerificaUndefined(diaDaSemana)) return; // Redireciona de volta ao início.
+            if (VerificaUndefined(diaDaSemana)) return;
 
             var objetoSemana = objetoAuditorio.semanas.find(semana => semana.nome === diaDaSemana);
 
@@ -488,7 +410,7 @@ function Eventos() {
 
             var nomeEmpresa = RetornarValorUsuario(
                 'letra',
-                'Qual o nome da empresa:',
+                'Qual o nome da empresa:\n\nAperte "Cancelar" caso deseje voltar do Inicio!',
                 objetoCancelarInicio.textoCancelar,
                 objetoCancelarInicio.funcaoCancela
             );
@@ -503,7 +425,7 @@ function Eventos() {
 
             var podeReservar = RestringirTexto(() => RetornarValorUsuario(
                 'letra',
-                'Gostaria de efetuar a reserva? S/N',
+                'Gostaria de efetuar a reserva? S/N\n\nAperte "Cancelar" caso deseje voltar do Inicio!',
                 objetoCancelarInicio.textoCancelar,
                 objetoCancelarInicio.funcaoCancela
             ), ['s', 'n']);
@@ -533,7 +455,7 @@ function DecidirDia(listaSemanas) {
     return executarComCancelamento(() => {
         var diaSemana = RestringirTexto(() => RetornarValorUsuario(
             'letra',
-            `Qual o dia da semana que deseja reservar: \n\nDias disponíveis: ${listaSemanas.join(', ')}.\n\nAperte em cancelar para voltar do Inicio!`,
+            `Qual o dia da semana que deseja reservar: \n\nDias disponíveis: ${listaSemanas.join(', ')}.\n\nAperte "Cancelar" caso deseje voltar do Inicio!'`,
             objetoCancelarInicio.textoCancelar,
             objetoCancelarInicio.funcaoCancela
         ), listaSemanas);
@@ -555,7 +477,7 @@ function DecidirHorario(max, objetoArray) {
 
         var horario = RestrigirNumero(() => RetornarValorUsuario(
             'numero',
-            `Qual o horário deseja reservar:\nHorários disponíveis: ${horariosDisponiveis.join('hs, ')}hs.\n\nNão há horários antes das ${reservaMinima} e depois das ${max}`,
+            `Qual o horário deseja reservar:\nHorários disponíveis: ${horariosDisponiveis.join('hs, ')}hs.\n\nNão há horários antes das ${reservaMinima} e depois das ${max}\n\nAperte "Cancelar" caso deseje voltar do Inicio!'`,
             objetoCancelarInicio.textoCancelar,
             objetoCancelarInicio.funcaoCancela
         ), { min: reservaMinima, max: max });
@@ -588,7 +510,7 @@ function DefinirDuracao(horarioAgendado, max, horariosMarcados) {
 
         var duracao = RestrigirNumero(() => RetornarValorUsuario(
             'numero',
-            `Qual a duração do evento em horas?\n\nA duração máxima de horas possível de acordo com o horario que você escolheu é de até ${duracaoMax}hs\n\nAperte cancelar caso deseje voltar do inicio`,
+            `Qual a duração do evento em horas?\n\nA duração máxima de horas possível de acordo com o horario que você escolheu é de até ${duracaoMax}hs\n\nAperte "Cancelar" caso deseje voltar do Inicio!'`,
             objetoCancelarInicio.textoCancelar,
             objetoCancelarInicio.funcaoCancela
         ), { min: 1, max: duracaoMax > 1 ? duracaoMax : undefined });
@@ -750,14 +672,78 @@ function Manuntencao() {
     });
 }
 
+function Inicio() {
+    executarComCancelamento(() => {
+        var textoEscolha = MontarTextoOpcoes(['Reservar Quarto', 'Cadastrar Hospedes', 'Cadastrar e Pesquisar', 'Eventos', 'Passeios', 'Manuntenção', 'Sair do Hotel']);
+
+        var escolhaOpcao = parseInt(RetornarValorUsuario(
+            'numero',
+            textoEscolha,
+            'e sair do programa',
+            SairEDespedir
+        ));
+
+        switch (escolhaOpcao) {
+            case 1:
+                ReservarQuarto();
+                break;
+            case 2:
+                CadastrarHospedes();
+                break;
+            case 3:
+                CadastroEPesquisa();
+                break;
+            case 4:
+                Eventos();
+                break;
+            case 5:
+                Passeios();
+                break;
+            case 6:
+                Manuntencao();
+                break;
+            case 7:
+                confirm('Você deseja sair do programa?') ? SairEDespedir() : Inicio();
+                break;
+            case null:
+                break;
+            default:
+                Erro(escolhaOpcao, 7);
+        }
+    });
+}
+objetoCancelarInicio.funcaoCancela = Inicio
+
+function VerificarSenha() {
+    executarComCancelamento(() => {
+        var senha = 2678;
+        var digitosMax = 4;
+        var senhadigitada = RetornarValorUsuario(
+            "numero",
+            `Digite sua senha: \n\nA senha possui ${digitosMax} dígitos`,
+            "e sair do programa",
+            SairEDespedir
+        );
+
+        var quantidadeSenha = senhadigitada.toString().length;
+
+        if (quantidadeSenha > digitosMax || quantidadeSenha < digitosMax) {
+            alert(`Senha inválida!\n\nA quantidade de número digitados foi ${quantidadeSenha}, e a senha possuí ${digitosMax} dígitos`);
+            VerificarSenha();
+        } else if (senhadigitada !== senha) {
+            alert('Senha inválida!');
+            VerificarSenha();
+        } else {
+            alert("Senha válida!");
+            alert(`Bem vindo ao hotel ${nomeHotel}, ${nomeUsuario}.\nÉ um imenso prazer ter você por aqui!`);
+            Inicio();
+        }
+    });
+}
+
 function Erro(numero, quantidade) {
     alert(`O número ${numero} não corresponde a uma opção válida! \n\n As opções possíveis são de 1 a ${quantidade}.`);
     Inicio();
-}
-
-function SairEDespedir() {
-    alert(`Muito obrigado e até logo, ${nomeUsuario != null ? nomeUsuario : 'Desconhecido'}`);
-    window.close();
 }
 
 if (nomeUsuario != null) {
