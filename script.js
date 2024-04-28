@@ -278,8 +278,8 @@ function CadastroEPesquisa() {
         var escolhaOpcao = RetornarValorUsuario(
             'numero',
             textoEscolha,
-            listaObjetoCancelar[0].textoCancelar,
-            listaObjetoCancelar[0].funcaoCancela
+            objetoCancelarInicio.textoCancelar,
+            objetoCancelarInicio.funcaoCancela
         )
 
         switch (escolhaOpcao) {
