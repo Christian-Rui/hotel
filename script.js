@@ -3,28 +3,35 @@ var listaHospedes = [];
 var listaCadastroHospedes = [];
 var nomesHospedes = [];
 
-function CalcularMaxHoras(diaSemana) {
-    return diaSemana === 'sabado' || diaSemana === 'domingo' ? 15 : 23;
+function DefinirSemanas() {
+
+    function CalcularMaxHoras(diaSemana) {
+        return diaSemana === 'sabado' || diaSemana === 'domingo' ? 15 : 23;
+    }
+
+    var arraySemana = ['segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
+    var arrayObjetosDias = [];
+
+    for (var i = 0; i < arraySemana.length; i++) {
+        arrayObjetosDias.push({
+            nome: arraySemana[i],
+            max: CalcularMaxHoras(arraySemana[i]),
+            quantidadeMax: (CalcularMaxHoras(arraySemana[i]) - 7) + 1,
+            horarioMarcado: []
+        });
+    }
+    return arrayObjetosDias;
 }
-
-var arraySemana = ['segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo'];
-
-var arrayObjetosDias = arraySemana.map(dia => ({
-    nome: dia,
-    max: CalcularMaxHoras(dia),
-    quantidadeMax: (CalcularMaxHoras(dia) - 7) + 2,
-    horarioMarcado: [7, 8, 9]
-}));
 
 var arrayAuditorio = [
     {
         nome: 'laranja',
-        semanas: [...arrayObjetosDias],
+        semanas: [...DefinirSemanas()],
         agendados: []
     },
     {
         nome: 'colorado',
-        semanas: [...arrayObjetosDias],
+        semanas: [...DefinirSemanas()],
         agendados: []
     }
 ];
@@ -37,63 +44,11 @@ var objetoCancelarPesquisa = {
     textoCancelar: 'e voltar para o menu anterior',
 }
 
-
-
 alert(`Bem vindo ao ${nomeHotel}`);
-
-/* 
-//Variaveis de exemplo
-
-var test1 = RestrigirNumero(() => RetornarValorUsuario(
-    'numero',
-    'Digite um número',
-    'Sair do banheiro',
-    Testar2
-), {min: 1, max: 350});
-
-var test2 = RestrigirNumero(() => RetornarValorUsuario({
-    tipo: 'numero',
-    texto: 'Digite um número',
-    funcaoCancela: Testar2
-}), {min: 0, max: 30});
-
-var test3 = RetornarValorUsuario({
-    tipo: 'letra',
-    texto: 'Digite uma letra',
-    textoCancelar: 'Sair do quarto',
-    funcaoCancela: Testar1
-}); 
-
-function Testar1() {
-    alert('opa');
-}
-
-function Testar2() {
-    alert('ae muleke foi')
-}
- */
 
 class UsuarioCancelouException {
     constructor(funcaoCancela) {
         this.funcaoCancela = funcaoCancela;
-    }
-}
-
-function RetornarValorUsuario(tipo, texto, textoCancelar, funcaoCancela) {
-    while (true) {
-        let valorUsuario = window.prompt(texto);
-
-        if (valorUsuario == null) {
-            if (confirm(`Você deseja cancelar a operação ${textoCancelar}?`)) {
-                throw new UsuarioCancelouException(funcaoCancela);
-            }
-        } else if (valorUsuario.trim() === '') {
-            alert("Nada foi digitado! \n\nTente novamente");
-        } else if ((isNaN(valorUsuario) ? 'letra' : 'numero') !== tipo) {
-            alert(`Valor inválido!\n\nDigite apenas valores que sejam ${tipo}s`);
-        } else {
-            return tipo === 'numero' ? Number(valorUsuario) : valorUsuario;
-        }
     }
 }
 
@@ -105,6 +60,23 @@ function executarComCancelamento(funcao) {
             e.funcaoCancela();
         } else {
             throw e;
+        }
+    }
+}
+
+function RetornarValorUsuario(tipo, texto, textoCancelar, funcaoCancela) {
+    while (true) {
+        let valorUsuario = window.prompt(texto);
+        if (valorUsuario == null) {
+            if (confirm(`Você deseja cancelar a operação ${textoCancelar}?`)) {
+                throw new UsuarioCancelouException(funcaoCancela);
+            }
+        } else if (valorUsuario.trim() === '') {
+            alert("Nada foi digitado! \n\nTente novamente");
+        } else if ((isNaN(valorUsuario) ? 'letra' : 'numero') !== tipo) {
+            alert(`Valor inválido!\n\nDigite apenas valores que sejam ${tipo}s`);
+        } else {
+            return tipo === 'numero' ? Number(valorUsuario) : valorUsuario;
         }
     }
 }
@@ -127,6 +99,7 @@ function RestrigirNumero(funcaoValorUsuario, limitadores) {
         alertaLimite("máximo", limitadores.max);
         return RepetirFuncao();
     }
+    return numero;
 }
 
 function RestringirTexto(funcaoValorUsuario, arrayTextosPermitidos) {
@@ -149,14 +122,12 @@ function MontarTextoOpcoes(listaPalavras) {
     return texto;
 }
 
-
-    var nomeUsuario = executarComCancelamento(() => RetornarValorUsuario(
-        'letra',
-        'Por favor, digite o seu nome:',
-        'sem informar seu nome',
-        SairEDespedirTeste
-    ));
-
+var nomeUsuario = executarComCancelamento(() => RetornarValorUsuario(
+    'letra',
+    'Por favor, digite o seu nome:',
+    'sem informar seu nome',
+    SairEDespedir
+));
 
 function VerificarSenha() {
     executarComCancelamento(() => {
@@ -166,7 +137,7 @@ function VerificarSenha() {
             "numero",
             `Digite sua senha: \n\nA senha possui ${digitosMax} dígitos`,
             "e sair do programa",
-            SairEDespedirTeste
+            SairEDespedir
         );
 
         var quantidadeSenha = senhadigitada.toString().length;
@@ -178,8 +149,8 @@ function VerificarSenha() {
             alert('Senha inválida!');
             VerificarSenha();
         } else {
-            ApresentarNaTela("Senha válida!");
-            ApresentarNaTela(`Bem vindo ao hotel ${nomeHotel}, ${nomeUsuario}.\nÉ um imenso prazer ter você por aqui!`);
+            alert("Senha válida!");
+            alert(`Bem vindo ao hotel ${nomeHotel}, ${nomeUsuario}.\nÉ um imenso prazer ter você por aqui!`);
             Inicio();
         }
     });
@@ -193,7 +164,7 @@ function Inicio() {
             'numero',
             textoEscolha,
             'e sair do programa',
-            SairEDespedirTeste
+            SairEDespedir
         ));
 
         switch (escolhaOpcao) {
@@ -216,14 +187,12 @@ function Inicio() {
                 Manuntencao();
                 break;
             case 7:
-                SairEDespedirTeste();
-                //Sair('Deseja sair do hotel: ')
+                confirm('Você deseja sair do programa?') ? SairEDespedir() : Inicio();
                 break;
             case null:
                 break;
             default:
-            // alert('nao era para aconteceer')
-            // Erro(escolhaOpcao, 7);
+                Erro(escolhaOpcao, 7);
         }
     });
 }
@@ -269,7 +238,7 @@ function ReservarQuarto() {
         }
 
         var quartoEscolhido = VerificarQuartoDisponivel(quartosTexto, quantidadeQuartos, listaQuartosDisponiveis);
-
+        if (quartoEscolhido === undefined) return;
         const objetoLista = {
             nome: nomeDoHospede,
             dias: quantidadeDias,
@@ -286,7 +255,7 @@ function ReservarQuarto() {
 
         if (reposta === 's') {
             listaHospedes.push(objetoLista);
-            ApresentarNaTela(`${nomeUsuario}, reserva efetuada para ${objetoLista.nome}`);
+            alert(`${nomeUsuario}, reserva efetuada para ${objetoLista.nome}`);
             Inicio();
         } else {
             Inicio();
@@ -295,7 +264,7 @@ function ReservarQuarto() {
 }
 
 function VerificarQuartoDisponivel(quartosTexto, valorMaximo, quartos) {
-    executarComCancelamento(() => {
+    return executarComCancelamento(() => {
         while (true) {
             var numeroQuarto = RestrigirNumero(() => RetornarValorUsuario(
                 'numero',
@@ -453,9 +422,9 @@ function Listar() {
 }
 
 function Eventos() {
-    executarComCancelamento(() => {
+    return executarComCancelamento(() => {
         var ocupados = arrayAuditorio.filter(objeto =>
-            objeto.semanas.every(dias => dias.horarioMarcado.length === dias.quantidadeMax)
+            objeto.semanas.every(dias => dias.horarioMarcado.length >= dias.quantidadeMax)
         );
 
         if (ocupados.length == 2) {
@@ -499,18 +468,16 @@ function Eventos() {
 
             alert('Agora vamos ver a agenda do evento');
 
-            var objetoAuditorio = arrayAuditorio.filter(objeto => objeto.nome === auditorio);
-            var semanasDesocupadas = objetoAuditorio.map(objeto => {
-                const diasDesocupados = objeto.semanas.filter(dias => dias.horarioMarcado.length != dias.quantidadeMax)
-                return diasDesocupados.map(dia => dia.nome);
-            }).flat();
+            var objetoAuditorio = arrayAuditorio.find(objeto => objeto.nome === auditorio);
+            var semanasDesocupadas = objetoAuditorio.semanas.flatMap(semana => semana.horarioMarcado.length < semana.quantidadeMax ? semana.nome : []).filter(Boolean);
 
             var diaDaSemana = DecidirDia(semanasDesocupadas);
+            if (VerificaUndefined(diaDaSemana)) return; // Redireciona de volta ao início.
 
-            var objetoSemana = objetoAuditorio.flatMap(objeto => objeto.semanas).find(semana => semana.nome === diaDaSemana);
-            console.log(objetoSemana)
-            console.log(objetoSemana.horarioMarcado);
+            var objetoSemana = objetoAuditorio.semanas.find(semana => semana.nome === diaDaSemana);
+
             var horario = DecidirHorario(objetoSemana.max, objetoSemana.horarioMarcado);
+            if (VerificaUndefined(horario)) return;
 
             if (!objetoSemana.horarioMarcado.includes(horario)) {
                 alert('Auditório disponível');
@@ -529,6 +496,7 @@ function Eventos() {
             alert(`Auditório reservado para ${nomeEmpresa}: ${diaDaSemana} às ${horario}hs`);
 
             var duracaoEvento = DefinirDuracao(horario, objetoSemana.max, objetoSemana.horarioMarcado);
+            if (VerificaUndefined(duracaoEvento)) return;
 
             DefinirGarcom(convidados, duracaoEvento.length);
             DefinirAlimento(convidados);
@@ -543,16 +511,12 @@ function Eventos() {
             if (podeReservar === 's') {
                 alert(`${nomeUsuario}, reserva efetuada com sucesso.`);
                 objetoSemana.horarioMarcado.push(...duracaoEvento);
-                console.log(duracaoEvento);
-
-                objetoAuditorio[0].agendados.push({
+                objetoAuditorio.agendados.push({
                     nome: nomeEmpresa,
                     diaDaSemana: diaDaSemana,
                     horario: horario,
                     duracao: duracaoEvento,
                 });
-                console.log(objetoAuditorio);
-                console.log(objetoSemana);
             } else {
                 alert('Reserva não efetuada.');
             }
@@ -561,8 +525,12 @@ function Eventos() {
     });
 }
 
+function VerificaUndefined(value) {
+    return value === undefined;
+}
+
 function DecidirDia(listaSemanas) {
-    executarComCancelamento(() => {
+    return executarComCancelamento(() => {
         var diaSemana = RestringirTexto(() => RetornarValorUsuario(
             'letra',
             `Qual o dia da semana que deseja reservar: \n\nDias disponíveis: ${listaSemanas.join(', ')}.\n\nAperte em cancelar para voltar do Inicio!`,
@@ -574,18 +542,16 @@ function DecidirDia(listaSemanas) {
 }
 
 function DecidirHorario(max, objetoArray) {
-    executarComCancelamento(() => {
+    return executarComCancelamento(() => {
         var reservaMinima = 7;
 
         var horariosDisponiveis = [];
-        console.log(objetoArray);
 
         for (var i = reservaMinima; i <= max; i++) {
             if (!objetoArray.includes(i)) {
                 horariosDisponiveis.push(i);
             }
         }
-        console.log(horariosDisponiveis);
 
         var horario = RestrigirNumero(() => RetornarValorUsuario(
             'numero',
@@ -598,7 +564,7 @@ function DecidirHorario(max, objetoArray) {
 }
 
 function DefinirDuracao(horarioAgendado, max, horariosMarcados) {
-    executarComCancelamento(() => {
+    return executarComCancelamento(() => {
         function CalcularDiferencaEmHoras(horario1, horario2) {
             return Math.abs(horario1 - horario2);
         }
@@ -671,99 +637,127 @@ function DefinirAlimento(convidados) {
     alert(`O café irá custar R$${valorBuffet.cafe}, a água R$${valorBuffet.agua}, e os salgados R$${valorBuffet.salgados}.\nNo total será R$${valorBuffet.cafe + valorBuffet.agua + valorBuffet.salgados}`);
 }
 
-// function Passeios() {
-//     var wayne = {};
-//     var stark = {};
-//     wayne.nome = 'Wayne Oil';
-//     wayne.alcool = RetornarNumeroPositivo('Qual o valor do álcool no posto Wayne Oil? ');
-//     wayne.gasolina = RetornarNumeroPositivo('Qual o valor da gasolina no posto Wayne Oil? ');
+function Passeios() {
+    executarComCancelamento(() => {
+        function InserirObjetos(nome) {
+            var objeto = {
+                nome: nome,
+                alcool: RestrigirNumero(() => RetornarValorUsuario(
+                    'numero',
+                    `Qual o valor do álcool no posto ${nome}?`,
+                    objetoCancelarInicio.textoCancelar,
+                    objetoCancelarInicio.funcaoCancela
+                ), { min: 1 }),
 
-//     stark.nome = 'StarkPetrol'
-//     stark.alcool = RetornarNumeroPositivo('Qual o valor do álcool no posto Stark Petrol? ');
-//     stark.gasolina = RetornarNumeroPositivo('Qual o valor da gasolina no posto Stark Petrol? ');
+                gasolina: RestrigirNumero(() => RetornarValorUsuario(
+                    'numero',
+                    `Qual o valor da gasolina no posto ${nome}?`,
+                    objetoCancelarInicio.textoCancelar,
+                    objetoCancelarInicio.funcaoCancela
+                ), { min: 1 })
+            }
+            return objeto;
+        }
 
-//     var alcoolBarato = wayne.alcool < stark.alcool ? wayne : stark;
-//     var gasolinaBarata = wayne.gasolina < stark.gasolina ? wayne : stark;
+        var wayne = InserirObjetos('Wayne Oil');
+        var stark = InserirObjetos('Stark Petrol');;
 
-//     var porcentagem = (alcoolBarato.alcool / gasolinaBarata.gasolina) * 100;
+        var alcoolBarato = wayne.alcool < stark.alcool ? wayne : stark;
+        var gasolinaBarata = wayne.gasolina < stark.gasolina ? wayne : stark;
 
-//     if (porcentagem <= 30) {
-//         ApresentarNaTela(`${nomeUsuario}, é mais barato abastecer com alcool no posto ${alcoolBarato.nome}\nO valor final será de R$${alcoolBarato.alcool * 42}`);
-//     } else {
-//         ApresentarNaTela(`${nomeUsuario}, é mais barato abastecer com gasolina no posto ${gasolinaBarata.nome}\nO valor final será de R$${gasolinaBarata.gasolina * 42}`);
-//     }
+        var porcentagem = (alcoolBarato.alcool / gasolinaBarata.gasolina) * 100;
 
-//     Inicio();
+        function AlertPreco(tipo, nome, tipoCombustivel) {
+            alert(`${nomeUsuario}, é mais barato abastecer com ${tipo} no posto ${nome}\nO valor final será de R$${tipoCombustivel * 42}`);
+        }
+        if (porcentagem <= 30) {
+            AlertPreco('alcool', alcoolBarato.nome, alcoolBarato.alcool);
+        } else {
+            AlertPreco('gasolina', gasolinaBarata.nome, gasolinaBarata.gasolina);
+        }
 
-// }
+        Inicio();
+    });
+}
 
-// function Manuntencao() {
-//     var listaEmpresas = [];
-//     do {
-//         const empresas = {}
+function Manuntencao() {
+    executarComCancelamento(() => {
+        var listaEmpresas = [];
+        do {
+            const empresas = {}
 
-//         empresas.nome = ReceberValorUsuario('Qual o nome da empresa?')
-//         var valorServico = RetornarNumeroPositivo('Qual o valor por aparelho?');
-//         var quantidadeAparelhos = RetornarNumeroPositivo('Qual a quantidade de aparelhos?');
-//         var desconto = ReceberValorUsuario('Qual a porcentagem de desconto?');
-//         var quantidadeMin = RetornarNumeroPositivo('Qual o número mínimo de aparelhos para conseguir o desconto?');
+            empresas.nome = RetornarValorUsuario(
+                'letra',
+                `Qual o nome da empresa?`,
+                objetoCancelarInicio.textoCancelar,
+                objetoCancelarInicio.funcaoCancela
+            );
 
-//         var valorTotal = valorServico * quantidadeAparelhos;
-//         console.log(valorTotal);
-//         var valorDescontoTotal = 0;
-//         console.log(valorDescontoTotal);
-//         if (quantidadeAparelhos >= quantidadeMin) {
-//             valorDescontoTotal = desconto == 0 ? valorTotal : valorTotal * (1 - desconto / 100);
-//             console.log(valorDescontoTotal);
-//             ApresentarNaTela(`O serviço de ${empresas.nome} custará R$${valorDescontoTotal.toFixed(2)}`);
-//             console.log(valorTotal);
-//             empresas.valorFinal = valorDescontoTotal;
-//         } else {
-//             ApresentarNaTela(`O serviço de ${empresas.nome} custará R$${valorTotal}`);
-//             empresas.valorFinal = valorTotal;
-//         }
-//         listaEmpresas.push(empresas);
-//     } while (prompt(`Deseja informar novos dados, ${nomeUsuario}`) === 'n');
+            var valorServico = RestrigirNumero(() => RetornarValorUsuario(
+                'numero',
+                `Qual o valor por aparelho?`,
+                objetoCancelarInicio.textoCancelar,
+                objetoCancelarInicio.funcaoCancela
+            ), { min: 1 });
 
-//     var menorValor = listaEmpresas.reduce((menor, objeto) => {
-//         return objeto.valorFinal < menor.valorFinal ? objeto : menor;
-//     });
+            var quantidadeAparelhos = RestrigirNumero(() => RetornarValorUsuario(
+                'numero',
+                `Qual a quantidade de aparelhos?`,
+                objetoCancelarInicio.textoCancelar,
+                objetoCancelarInicio.funcaoCancela
+            ), { min: 1 });
 
-//     ApresentarNaTela(`O orçamento de menor vlaor é o ${menorValor.nome} por R$${menorValor.valorFinal}`);
-// }
+            var desconto = RestrigirNumero(() => RetornarValorUsuario(
+                'numero',
+                `Qual a porcentagem de desconto?\n\nO minímo é 0%`,
+                objetoCancelarInicio.textoCancelar,
+                objetoCancelarInicio.funcaoCancela
+            ), { min: 0 });
+
+            var quantidadeMin = RestrigirNumero(() => RetornarValorUsuario(
+                'numero',
+                `Qual o número mínimo de aparelhos para conseguir o desconto?\n\nO minímo é 0 aparelhos`,
+                objetoCancelarInicio.textoCancelar,
+                objetoCancelarInicio.funcaoCancela
+            ), { min: 0 });
 
 
-// function Cancelar(texto) {
-//     return confirm(texto);
-// }
+            var valorTotal = valorServico * quantidadeAparelhos;
+            var valorDescontoTotal = 0;
+
+            if (quantidadeAparelhos >= quantidadeMin) {
+                valorDescontoTotal = desconto == 0 ? valorTotal : valorTotal * (1 - desconto / 100);
+                alert(`O serviço de ${empresas.nome} custará R$${valorDescontoTotal.toFixed(2)}`);
+                empresas.valorFinal = valorDescontoTotal;
+            } else {
+                alert(`O serviço de ${empresas.nome} custará R$${valorTotal}`);
+                empresas.valorFinal = valorTotal;
+            }
+            listaEmpresas.push(empresas);
+        } while (RestringirTexto(() => RetornarValorUsuario(
+            'letra',
+            `Deseja informar novos dados, ${nomeUsuario}: S/N`,
+            objetoCancelarInicio.textoCancelar,
+            objetoCancelarInicio.funcaoCancela
+        ), ['s', 'n']) === 's');
+
+        var menorValor = listaEmpresas.reduce((menor, objeto) => {
+            return objeto.valorFinal < menor.valorFinal ? objeto : menor;
+        });
+
+        alert(`O orçamento de menor valor é o ${menorValor.nome} por R$${menorValor.valorFinal.toFixed(2)}`);
+        Inicio();
+    });
+}
 
 function Erro(numero, quantidade) {
+    alert(`O número ${numero} não corresponde a uma opção válida! \n\n As opções possíveis são de 1 a ${quantidade}.`);
     Inicio();
-    ApresentarNaTela(`O número ${numero} não corresponde a uma opção válida! \n\n As opções possíveis são de 1 a ${quantidade}.`);
 }
 
-function ApresentarNaTela(conteudo) {
-    alert(conteudo);
-}
-
-// function Sair(texto) {
-//     if (!SairEDespedir(confirm(texto))) {
-//         Inicio();
-//     }
-// }
-
-function SairEDespedir(confirmar) {
-    if (confirmar) {
-        alert(`Muito obrigado e até logo, ${nomeUsuario != null ? nomeUsuario : 'Desconhecido'}`);
-        window.close();
-    }
-    return confirmar;
-
-}
-
-function SairEDespedirTeste() {
-    alert(`Muito obrigado e até logo, ${nomeUsuario != undefined ? nomeUsuario : 'Desconhecido'}`);
-    // window.close();
+function SairEDespedir() {
+    alert(`Muito obrigado e até logo, ${nomeUsuario != null ? nomeUsuario : 'Desconhecido'}`);
+    window.close();
 }
 
 if (nomeUsuario != null) {
