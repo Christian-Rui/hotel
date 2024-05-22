@@ -9,7 +9,7 @@ Utiliza sistema de prompts para receber dados e valores do usuário, tanto para 
 Com o botão Cancelar do prompt funcional, podendo ser usado para retornar a menus anteriores ou sair do programa.
 
 Possui as seguintes funções:
-### Quantos quartos são?
+### 1) Quantos quartos são?
 
 Hotel possui 20 quartos e ao iniciar o programa todos estão livres. 
 1) Recebe o valor de uma diária no hotel e a quantidade de dias de hospedagem. Valida as informações, impedindo que o usuário informe dados inválidos, de maneira que o valor da diária não seja negativo e que a quantidade de dias não seja nem negativa, nem maior que 30. 
