@@ -1,4 +1,4 @@
-#Hotel Letoh
+# Hotel Letoh
 Programe que realiza algumas operações simples de um Hotel.
 
 ## 💻 Tecnologia
